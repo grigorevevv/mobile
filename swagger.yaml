@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: Subscription API
+  version: "1.0.0"
+  description: |
+    REST API для управления подписками пользователей.
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /subscription/create:
+    post:
+      summary: Создание подписки
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        "201":
+          description: Подписка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: Некорректные данные запроса
+
+  /subscription:
+    get:
+      summary: Получение подписки
+      tags:
+        - Subscription
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID пользователя
+      responses:
+        "200":
+          description: Подписка найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "404":
+          description: Подписка не найдена
+    patch:
+      summary: Обновление подписки
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        "200":
+          description: Подписка успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        "400":
+          description: Некорректные данные
+        "404":
+          description: Подписка не найдена
+    delete:
+      summary: Удаление подписки
+      tags:
+        - Subscription
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID пользователя
+      responses:
+        "204":
+          description: Подписка удалена
+        "404":
+          description: Подписка не найдена
+
+  /subscription/report:
+    get:
+      summary: Получение отчета по подпискам
+      tags:
+        - Subscription
+      parameters:
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            example: "01-2025"
+          required: true
+          description: Начало периода
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            example: "12-2025"
+          required: true
+          description: Конец периода
+        - in: query
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: false
+          description: UUID пользователя (фильтр)
+        - in: query
+          name: service_name
+          schema:
+            type: string
+            example: "Yandex Plus"
+          required: false
+          description: Название сервиса (фильтр)
+      responses:
+        "200":
+          description: Список отчетов по подпискам
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListReport'
+
+components:
+  schemas:
+    Subscription:
+      type: object
+      required:
+        - service_name
+        - price
+        - user_id
+        - start_date
+        - end_date
+      properties:
+        service_name:
+          type: string
+          example: "Yandex Plus"
+        price:
+          type: number
+          example: 400
+        user_id:
+          type: string
+          format: uuid
+          example: "60601fee-2bf1-4721-ae6f-7636e79a0cba"
+        start_date:
+          type: string
+          example: "07-2025"
+        end_date:
+          type: string
+          example: "09-2026"
+
+    ListReport:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: "60601fee-2bf1-4721-ae6f-7636e79a0cba"
+        service_name:
+          type: string
+          example: "Yandex Plus"
+        sum:
+          type: integer
+          example: 1200
